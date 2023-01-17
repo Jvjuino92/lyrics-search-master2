@@ -5,6 +5,14 @@ const prevAndNextContainer = document.querySelector('#prev-and-next-container')
 
 const apiURL = `https://api.lyrics.ovh`
 
+const getMoreSongs = async url => {
+    const response = await fetch(`https://cors-anywhere.herokuapp.com/${url}`)
+    const data = await response.json()
+    console.log(data)
+    
+    insertSongsIntoPage(data)
+}
+
 const insertSongsIntoPage = songsInfo => {
     songsContainer.innerHTML = songsInfo.data.map(song => 
         `<li class="song">
@@ -15,9 +23,13 @@ const insertSongsIntoPage = songsInfo => {
 
     if (songsInfo.prev || songsInfo.next) {
         prevAndNextContainer.innerHTML = `
-            ${songsInfo.next ? `<button>Next</button>` : ''}
+            ${songsInfo.prev ? `<button class="btn" onClick="getMoreSongs('${songsInfo.next}')">Back</button>` : ''}
+            ${songsInfo.next ? `<button class="btn" onClick="getMoreSongs('${songsInfo.next}')">Next</button>` : ''}
         `
+        return
     }
+
+    prevAndNextContainer.innerHTML
 }
 
 const fetchSongs = async term => {
@@ -38,6 +50,31 @@ form.addEventListener('submit', event => {
     }
 
     fetchSongs(searchTerm)
+})
+
+const fetchLyrics = async (artist, songTitle) => {
+    const response = await fetch(`${apiURL}/v1/${artist}/${songTitle}`)
+    const data = await response.json()
+
+    songsContainer.innerHTML = `
+        <li class="lyrics-container">
+            <h2>
+                <strong>${songTitle}</strong> - ${artist}
+            </h2>
+            <p class="lyrics">${data.lyrics}</p>
+        </li>
+    `
+}
+
+songsContainer.addEventListener('click', event => {
+    const clickedElement = event.target
+
+    if (clickedElement.tagName === 'BUTTON') {
+        const artist = clickedElement.getAttribute('data-artist')
+        const songTitle = clickedElement.getAttribute('data-song-title')
+
+        fetchLyrics(artist, songTitle)
+    }
 })
 
 // 39:24
