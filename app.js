@@ -55,13 +55,12 @@ form.addEventListener('submit', event => {
 const fetchLyrics = async (artist, songTitle) => {
     const response = await fetch(`${apiURL}/v1/${artist}/${songTitle}`)
     const data = await response.json()
+    const lyrics = data.lyrics.replace(/(\r\n|\r|\n)/g, '<br>')
 
     songsContainer.innerHTML = `
         <li class="lyrics-container">
-            <h2>
-                <strong>${songTitle}</strong> - ${artist}
-            </h2>
-            <p class="lyrics">${data.lyrics}</p>
+            <h2><strong>${songTitle}</strong> - ${artist}</h2>
+            <p class="lyrics">${lyrics}</p>
         </li>
     `
 }
